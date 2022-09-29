@@ -1,5 +1,19 @@
 //auto bind decorator
-function autoBind() {}
+function autoBind(
+  _: any, // target/constructor   "_" gives a hint to typescript not to use it
+  _2: string, // methodName
+  descriptor: PropertyDescriptor // אובייקט שמתאר פרופרטי מסויים ואיך אפשר לעבוד איתו
+) {
+  const originalMethod = descriptor.value
+  const adjDescirptor: PropertyDescriptor = {
+    configurable: true,
+    get() {
+      const boundFn = originalMethod.bind(this)
+      return boundFn
+    },
+  }
+  return adjDescirptor
+}
 
 // ProjectInput Class
 class ProjectInput {
@@ -35,13 +49,14 @@ class ProjectInput {
     this.attach()
   }
 
+  @autoBind
   private submitHandler(event: Event) {
     event.preventDefault()
     console.log(this.titleInputElement.value)
   }
 
   private configure() {
-    this.element.addEventListener('submit', this.submitHandler.bind(this))
+    this.element.addEventListener('submit', this.submitHandler)
   }
 
   private attach() {
